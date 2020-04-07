@@ -8,13 +8,8 @@ import (
 
 // Tokens represents n token sets found in a token.json file
 type Tokens struct {
-	file   string
-	tokens map[string]*Token
-}
-
-// Token represents an individual token set extracted from Tokens
-type Token struct {
-	cred map[string]string
+	file  string
+	token map[string]*Token
 }
 
 var tokenSearchPath []string = nil
@@ -33,13 +28,25 @@ func ImportTokens(fn string) (*Tokens, error) {
 
 	tks := new(Tokens)
 	tks.file = tf
-	tks.tokens = make(map[string]*Token)
+	tks.token = make(map[string]*Token)
 
 	err = tks.read()
 	if err != nil {
 		return nil, err
 	}
 	return tks, nil
+}
+
+// Select returns the named Token from those imported
+func (tks *Tokens) Select(tname string) (*Token, error) {
+	if tk, ok := tks.token[tname]; ok {
+		return tk, nil
+	}
+
+	return nil, &Error{
+		Code:    EBADTOKEN,
+		Message: fmt.Sprintf("Unrecognised token name '%s'", tname),
+	}
 }
 
 // File returns the name of the file the tokens were read from
@@ -86,14 +93,14 @@ func (tks *Tokens) parse(bytes []byte) error {
 		cm := csi.(map[string]interface{}) // silently swallows duplicate credential entries
 		tk := new(Token)
 		tns := tn.(string)
-		if _, ok = tks.tokens[tns]; ok {
+		if _, ok = tks.token[tns]; ok {
 			return &Error{
 				Code:    EMALFORMEDJSON,
 				Message: fmt.Sprintf("Malformed file: duplicate token name '%s' found", tns),
 				Context: "dup-token",
 			}
 		}
-		tks.tokens[tns] = tk
+		tks.token[tns] = tk
 
 		tk.cred = make(map[string]string)
 		for k, v := range cm {

@@ -10,12 +10,8 @@ var fp []string = []string{"c:", "z:"}
 
 func TestNoSearchPath(t *testing.T) {
 	_, err := gotokens.ImportTokens("TEST/twitter-api.json")
-	eec := gotokens.ENOSEARCHPATH
-	if err == nil {
-		t.Errorf("Expected '%s' error", eec)
-	} else if gec := gotokens.ErrorCode(err); gec != eec {
-		t.Errorf("Expected error code %s; got %s", eec, err)
-	}
+	exp := gotokens.ENOSEARCHPATH
+	testErrorCode(t, err, exp)
 }
 
 func TestImportTokens(t *testing.T) {
@@ -23,6 +19,17 @@ func TestImportTokens(t *testing.T) {
 	_, err := gotokens.ImportTokens("TEST/twitter-api.json")
 	if err != nil {
 		t.Errorf("Error importing valid file: %s", err)
+	}
+}
+
+func TestImportDirectly(t *testing.T) {
+	path := "C:/Tokens/TEST/twitter-api.json"
+	tks, err := gotokens.ImportTokens(path)
+	if err != nil {
+		t.Errorf("Error importing valid file directly: %s", err)
+	}
+	if tks.File() != path {
+		t.Errorf("Tokens filename was '%s'; expected '%s'", tks.File(), path)
 	}
 }
 
@@ -47,14 +54,26 @@ func TestTokensExceptions(t *testing.T) {
 		if err == nil {
 			t.Errorf("%s (%s) error expected", tst.desc, tks.File())
 		} else {
-			gotEC := gotokens.ErrorCode(err)
-			gotCtxt := gotokens.ErrorContext(err)
-			if gotEC != tst.ec {
-				t.Errorf("Expected error code %s; got %s: %s", tst.ec, gotEC, err)
-			}
-			if tst.ctxt != "" && gotCtxt != tst.ctxt {
-				t.Errorf("Expected '%s' error context, got '%s': %s", tst.ctxt, gotokens.ErrorContext(err), err)
-			}
+			testErrorCode(t, err, tst.ec)
+			testErrorContext(t, err, tst.ctxt)
 		}
+	}
+}
+
+func TestChooseToken(t *testing.T) {
+	tokens, err := gotokens.ImportTokens("C:/Tokens/TEST/twitter-api.json")
+	if err != nil {
+		t.Errorf("Error importing valid file directly: %s", err)
+		return
+	}
+
+	_, err = tokens.Select("Twitter_App_One")
+	if err != nil {
+		t.Errorf("Error selecting existing token: %s", err)
+	}
+
+	_, err = tokens.Select("NoSuchToken")
+	if err != nil {
+		testErrorCode(t, err, gotokens.EBADTOKEN)
 	}
 }

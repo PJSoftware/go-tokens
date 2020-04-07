@@ -9,6 +9,10 @@ import (
 const tokenFolder string = "/Tokens/"
 
 func findJSONFile(fn string) (string, error) {
+	if fileExists(fn) {
+		return fn, nil
+	}
+
 	if len(tokenSearchPath) == 0 {
 		return "", &Error{
 			Code:    ENOSEARCHPATH,

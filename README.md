@@ -45,11 +45,15 @@ To use this information in your code, you would need something like:
 ```go
 import "github.com/pjsoftware/gotokens"
 
-token = new(gotokens.Token)
-token.Search({"..", "//lan/shared/gitfiles"})
-token.Import("Tokens/API/twitter.json", "Twitter_App_Name")
+gotokens.SetSearchPath({"C:", "Z:"})
+tokens := gotokens.ImportTokens("API/twitter.json")
+token := tokens.Select("TwitterApp")
 key1 := token.Credential("KEY1")
 sec1 := token.Credential("SECRET1")
 ```
 
-This will, of course, all change as I develop the code.
+If you know the exact path to the `JSON` file and do not wish to search among several possible locations, you can skip the `SetSearchPath()` call and simply use:
+
+```go
+tokens := gotokens.ImportTokens("C:/Tokens/API/twitter.json")
+```

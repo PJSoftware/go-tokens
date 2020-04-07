@@ -14,6 +14,8 @@ const (
 	EFILENOTFOUND  string = "E_FILE_NOT_FOUND"
 	ENOSEARCHPATH  string = "E_NO_SEARCH_PATH"
 	EMALFORMEDJSON string = "E_MALFORMED_JSON"
+	EBADTOKEN      string = "E_BAD_TOKEN"
+	EBADCREDENTIAL string = "E_BAD_CREDENTIAL"
 )
 
 // Error is our error type
