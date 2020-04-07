@@ -39,13 +39,14 @@ func TestTokensExceptions(t *testing.T) {
 		{"missing-name", "Missing 'name' key", gotokens.EMALFORMEDJSON},
 		{"missing-cred", "Missing 'credentials' key", gotokens.EMALFORMEDJSON},
 		{"nosuch-file", "Missing json file", gotokens.EFILENOTFOUND},
+		{"not-json", "Badly formatted JSON", gotokens.EINTERNAL},
 	}
 	for _, tst := range tTable {
 		tks, err := gotokens.ImportTokens("TEST/" + tst.fn + ".json")
 		if err == nil {
 			t.Errorf("%s (%s) error expected", tst.desc, tks.File())
 		} else if gotEC := gotokens.ErrorCode(err); gotEC != tst.ec {
-			t.Errorf("Expected error code %s; got %s (%s)", tst.ec, gotEC, gotokens.ErrorMessage(err))
+			t.Errorf("Expected error code %s; got %s: %s", tst.ec, gotEC, err)
 		}
 	}
 }

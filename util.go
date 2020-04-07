@@ -42,7 +42,7 @@ func convert(byteValue []byte) (interface{}, error) {
 	var jsonData map[string]interface{}
 	err := json.Unmarshal([]byte(byteValue), &jsonData)
 	if err != nil {
-		return nil, &Error{Op: op, Err: err}
+		return nil, &Error{Op: op, Context: "json.Unmarshal", Err: err}
 	}
 
 	var data interface{}

@@ -30,7 +30,11 @@ func (e *Error) Error() string {
 	var buf bytes.Buffer
 
 	if e.Op != "" {
-		fmt.Fprintf(&buf, "%s: ", e.Op)
+		fmt.Fprintf(&buf, "%s", e.Op)
+		if e.Context != "" {
+			buf.WriteString(fmt.Sprintf("/%s", e.Context))
+		}
+		buf.WriteString(": ")
 	}
 
 	if e.Err != nil {
@@ -48,10 +52,14 @@ func (e *Error) Error() string {
 func ErrorCode(err error) string {
 	if err == nil {
 		return ENOERROR
-	} else if e, ok := err.(*Error); ok && e.Code != ENOERROR {
-		return e.Code
-	} else if ok && e.Err != nil {
-		return ErrorCode(e.Err)
+	}
+	e, ok := err.(*Error)
+	if ok {
+		if e.Code != ENOERROR {
+			return e.Code
+		} else if e.Err != nil {
+			return ErrorCode(e.Err)
+		}
 	}
 	return EINTERNAL
 }
@@ -60,10 +68,14 @@ func ErrorCode(err error) string {
 func ErrorMessage(err error) string {
 	if err == nil {
 		return ""
-	} else if e, ok := err.(*Error); ok && e.Message != "" {
-		return e.Message
-	} else if ok && e.Err != nil {
-		return ErrorMessage(e.Err)
 	}
-	return "An internal error has occurred"
+	e, ok := err.(*Error)
+	if ok {
+		if e.Message != "" {
+			return e.Message
+		} else if e.Err != nil {
+			return ErrorMessage(e.Err)
+		}
+	}
+	return fmt.Sprintf("An internal error has occurred: %s", err)
 }
