@@ -51,6 +51,7 @@ func convert(byteValue []byte) (interface{}, error) {
 		return nil, &Error{
 			Code:    EMALFORMEDJSON,
 			Message: fmt.Sprintf("Malformed file: 'tokens' missing"),
+			Context: "no-token",
 		}
 	}
 

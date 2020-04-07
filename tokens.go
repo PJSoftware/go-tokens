@@ -70,12 +70,14 @@ func (tks *Tokens) parse(bytes []byte) error {
 			return &Error{
 				Code:    EMALFORMEDJSON,
 				Message: fmt.Sprintf("Malformed file: 'name' missing"),
+				Context: "no-name",
 			}
 		}
 		if ci, ok = tm["credentials"]; !ok {
 			return &Error{
 				Code:    EMALFORMEDJSON,
 				Message: fmt.Sprintf("Malformed file: 'credentials' missing"),
+				Context: "no-cred",
 			}
 		}
 
@@ -88,6 +90,7 @@ func (tks *Tokens) parse(bytes []byte) error {
 			return &Error{
 				Code:    EMALFORMEDJSON,
 				Message: fmt.Sprintf("Malformed file: duplicate token name '%s' found", tns),
+				Context: "dup-token",
 			}
 		}
 		tks.tokens[tns] = tk

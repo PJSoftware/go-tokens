@@ -79,3 +79,19 @@ func ErrorMessage(err error) string {
 	}
 	return fmt.Sprintf("An internal error has occurred: %s", err)
 }
+
+// ErrorContext returns relevant error context
+func ErrorContext(err error) string {
+	if err == nil {
+		return ""
+	}
+	e, ok := err.(*Error)
+	if ok {
+		if e.Context != "" {
+			return e.Context
+		} else if e.Err != nil {
+			return ErrorContext(e.Err)
+		}
+	}
+	return "NoContext"
+}
